@@ -1,0 +1,36 @@
+{
+  "name": "hgn-server",
+  "version": "1.0.0",
+  "description": "Practicing backend",
+  "main": "src/index.ts",
+  "license": "MIT",
+  "dependencies": {
+    "@types/koa": "^2.0.46",
+    "@types/koa-bodyparser": "^5.0.0",
+    "@types/koa-multer": "^1.0.0",
+    "@types/koa-router": "^7.0.30",
+    "bcrypt": "^3.0.0",
+    "body-parser": "^1.18.3",
+    "class-validator": "^0.8.5",
+    "dotenv": "^6.0.0",
+    "envs": "^0.1.6",
+    "jsonwebtoken": "^8.3.0",
+    "kcors": "^2.2.2",
+    "koa": "^2.5.1",
+    "koa-bodyparser": "^4.2.1",
+    "koa-multer": "^1.0.2",
+    "koa-router": "^7.4.0",
+    "nodemailer": "^4.6.7",
+    "nodemon": "^1.17.5",
+    "pg": "^7.4.3",
+    "routing-controllers": "^0.7.7",
+    "superagent": "^3.8.3",
+    "ts-node": "^7.0.0",
+    "typeorm": "^0.2.7",
+    "typescript": "^2.9.2"
+  },
+  "scripts": {
+    "start": "nodemon",
+    "compile": "tsc"
+  }
+}

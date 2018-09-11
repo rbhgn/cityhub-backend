@@ -1,0 +1,6 @@
+node_modules
+target
+yarn-error.log
+yarn.log
+.DS_Store
+.env
