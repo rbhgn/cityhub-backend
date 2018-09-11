@@ -18,7 +18,7 @@ require('dotenv').config()
 
 const app = new Koa()
 const server = new Server(app.callback())
-const port = 4000 || process.env.PORT
+const port = process.env.PORT || 4000
 
 useKoaServer(app, {
   cors: true,
