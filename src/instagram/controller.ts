@@ -49,7 +49,7 @@ export default class InstagramController {
         @Param('location') location: string
     ) {
         console.log(location)
-        const data = await Instagram.query(`SELECT * FROM instagrams WHERE status='accepted' AND location='${location}' ORDER BY date DESC, id DESC`)
+        const data = await Instagram.query(`SELECT * FROM instagrams WHERE status='accepted' AND location='${location}' ORDER BY date DESC, id DESC LIMIT 300`)
         return data
     }
 }
