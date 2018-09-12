@@ -16,10 +16,8 @@ export default class SettingsController {
         update['data']['refreshData'] ? item.refreshData = Number(update['data']['refreshData']) : null
         update['data']['refreshItem'] ? item.refreshItem = Number(update['data']['refreshItem']) : null
         update['data']['eventInterval'] ? item.eventInterval = Number(update['data']['eventInterval']) : null
-        update['data']['messageBarSpeed'] ? item.messageBarSpeed = Number(update['data']['messageBarSpeed']) : null
+        update['data']['messageInterval'] ? item.messageBarInterval = Number(update['data']['messageBarInterval']) : null
        return await item.save()
-    //    console.log(result)
-    //    return await Setting.findOne(update.id)
     }
 
     @HttpCode(201)

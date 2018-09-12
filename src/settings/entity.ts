@@ -16,7 +16,7 @@ export default class Setting extends BaseEntity {
   eventInterval: number
 
   @Column('int', {nullable:true})  
-  messageBarSpeed: number
+  messageBarInterval: number
 
   @Column('text', {nullable:true})
   location: string
