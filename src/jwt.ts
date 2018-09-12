@@ -1,7 +1,7 @@
 import * as jwt from 'jsonwebtoken'
 
 export const secret = process.env.JWT_SECRET || '9u8nnjksfdt98*(&*%T$#hsfjk'
-const ttl = 3600 * 4 
+const ttl = 3600 * 24 * 7
 interface JwtPayload {
   id: number
 }
