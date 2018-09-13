@@ -1,5 +1,6 @@
 import { JsonController, Get, Post, HttpCode, Body, Authorized, NotFoundError, Patch, Param} from 'routing-controllers'
 import Instagram from './entity';
+const snakeCaseKeys = require('snakecase-keys')
 
 @JsonController()
 export default class InstagramController {
@@ -36,8 +37,9 @@ export default class InstagramController {
     ) {
         const item = await Instagram.findOne(Number(update.id)) 
         if (item){
-             item.status = 'declined'
-             return await item.save()
+             item.status === 'accepted' ? item.status = 'declined' : item.status = 'accepted'
+             const result = await item.save()
+             return snakeCaseKeys(result)
         } else {
             throw new NotFoundError('Cannot find item')
         }
@@ -48,8 +50,18 @@ export default class InstagramController {
     async slideshowData(
         @Param('location') location: string
     ) {
-        console.log(location)
-        const data = await Instagram.query(`SELECT * FROM instagrams WHERE status='accepted' AND location='${location}' ORDER BY date DESC, id DESC LIMIT 300`)
-        return data
+        const limit = 300
+        const data = await Instagram.query(`SELECT * FROM instagrams WHERE status='accepted' AND location='${location}' ORDER BY date DESC, id DESC LIMIT ${limit}`)
+        return {location, limit, data}
+    }
+
+    @HttpCode(201)
+    @Get('/instagrams/:location')
+    async allInstagrams(
+        @Param('location') location: string
+    ) {
+        const limit = 'none'
+        const data = await Instagram.query(`SELECT * FROM instagrams WHERE location='${location}' ORDER BY date DESC, id DESC `)
+        return {location, limit, data}
     }
 }

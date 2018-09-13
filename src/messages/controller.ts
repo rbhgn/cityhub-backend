@@ -1,6 +1,7 @@
 import { JsonController, Post, HttpCode, Body, Authorized, Get, Param, Delete} from 'routing-controllers'
 import Event from './entity';
 
+
 @JsonController()
 export default class MessageController {
 
