@@ -6,10 +6,10 @@ export default class Message extends BaseEntity {
   @PrimaryGeneratedColumn()
   id?: number
 
-  @Column('text', {nullable:true})  
+  @Column('text', {nullable:false})  
   message: string 
 
-  @Column('text', {nullable:true})
+  @Column('text', {nullable:false})
   location: string
 
   @CreateDateColumn({type: "timestamp"})

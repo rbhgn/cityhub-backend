@@ -27,7 +27,7 @@ export default class Event extends BaseEntity {
   @Column('text', {nullable:true})  
   endDate: Date 
 
-  @Column('text', {nullable:true})
+  @Column('text', {nullable:false})
   location: string
 
   @CreateDateColumn({type: "timestamp"})

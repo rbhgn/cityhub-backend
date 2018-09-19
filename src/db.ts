@@ -8,6 +8,7 @@ import Instagram from './instagram/entity';
 import Message from './messages/entity';
 import Event from './events/entity'
 import Setting from './settings/entity';
+import ScrapeSession from './scrapeSessions/entity';
 
 
 
@@ -34,7 +35,7 @@ export default () =>
   createConnection({
       type: "postgres",
       url: process.env.DATABASE_URL || DATABASE_URL,
-      entities: [User, Instagram, Message, Event, Setting],
+      entities: [User, Instagram, Message, Event, Setting, ScrapeSession],
       synchronize: true,
       logging: true,
       namingStrategy: new CustomNamingStrategy()
