@@ -4,6 +4,11 @@
   "description": "Practicing backend",
   "main": "src/index.ts",
   "license": "MIT",
+  "engines": {
+    "node": "8.11.3",
+    "yarn": "1.9.4",
+    "npm": "5.6.0"
+  },
   "dependencies": {
     "@types/koa": "^2.0.46",
     "@types/koa-bodyparser": "^5.0.0",
