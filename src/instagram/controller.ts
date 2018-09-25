@@ -3,12 +3,12 @@ import Instagram from './entity';
 import * as request from 'superagent'
 import ScrapeSession from '../scrapeSessions/entity';
 import { locations, hashTags, keyWords, owner } from '../scrapeSettings'
-import { getPaths, checkIfUnique, getShortCode } from '../functions'
+import { getPaths, getShortCode } from '../functions'
 const snakeCaseKeys = require('snakecase-keys')
 
-let counter = 0
+// let counter = 0
 
-const getInstaUser =  async (item, currentMediaIds) => {
+const getInstaUser =  async (item) => {
     request
     .get(`https://www.instagram.com/p/${item.mediaShortCode}/?__a=1`)
     .then (async (result) =>  {
@@ -49,27 +49,27 @@ const getInstaUser =  async (item, currentMediaIds) => {
                 newItem.media = newItem.isVideo ? 'instagramVideo' : 'instagramImage'
                 newItem.videoUrl = index === 0 && item.videoUrl ? item.videoUrl : n.node.video_url
 
-                if (checkIfUnique(currentMediaIds, newItem.mediaId)) {
-                    const duplicate = await Instagram.findOne({displayUrl: newItem.displayUrl, location: newItem.location})
+                    const duplicate = await Instagram.findOne({mediaId: newItem.mediaId})
                     if(!duplicate) {
                             const savedItem = newItem.save()    
                             if (!savedItem) console.log("error saving")
                     }  
-                } else {
-                    counter += 1
-                    console.log(counter + " duplicate")
-                }
+                    if (duplicate !== undefined) {
+                        item.status === duplicate.status
+                        const updateItem = Instagram.merge(duplicate, newItem).save()
+                        updateItem ? console.log("Updated Item") : console.log("error updating")
+                    }
             })
         } else {
-            if (checkIfUnique(currentMediaIds, item.mediaId)) {
-                const duplicate = await Instagram.findOne({displayUrl: item.displayUrl, location: item.location})
-                if(!duplicate) {
-                    const savedItem = item.save()
+            const duplicate = await Instagram.findOne({mediaId: item.mediaId})
+            if(!duplicate) {
+                    const savedItem = item.save()    
                     if (!savedItem) console.log("error saving")
-                }  
-            } else {
-                counter += 1
-                console.log(counter + " duplicate")
+            }  
+            if (duplicate !== undefined) {
+                item.status === duplicate.status
+                const updateItem = Instagram.merge(duplicate, item).save()
+                updateItem ? console.log("Updated Item") : console.log("error updating")
             }
         }
     })
@@ -78,7 +78,7 @@ const getInstaUser =  async (item, currentMediaIds) => {
     })
   }
 
-const handleItem = (data, item, currentMediaIds) => {
+const handleItem = (data, item) => {
     const items = getPaths(item, data.type)
     items.map(m => {
         const date = new Date(m.node.taken_at_timestamp * 1000)
@@ -101,7 +101,7 @@ const handleItem = (data, item, currentMediaIds) => {
         data.containsKeyword = i.text.includes(data.keyWord)
         if ( data.containsKeyword )  {
             try {
-                return await getInstaUser(i, currentMediaIds)
+                return await getInstaUser(i)
             } catch(e) {
                 console.log(e.status)
             }
@@ -109,7 +109,7 @@ const handleItem = (data, item, currentMediaIds) => {
     })
 }
 
-const getInstaByOwner = (data, nextPage, endCursor, currentMediaIds) => {
+const getInstaByOwner = (data, nextPage, endCursor) => {
     let url
     nextPage ? url =`https://www.instagram.com/${data.owner}/?__a=1&max_id=${endCursor}` : url = `https://www.instagram.com/${data.owner}/?__a=1` 
     request
@@ -119,10 +119,10 @@ const getInstaByOwner = (data, nextPage, endCursor, currentMediaIds) => {
        const endCursor = JSON.parse(result.text).graphql.user.edge_owner_to_timeline_media.page_info.end_cursor
        const item = JSON.parse(result.text).graphql.user
        try {
-           await handleItem(data, item, currentMediaIds)
+           await handleItem(data, item)
            if (nextPage) {
                try {
-                   await getInstaByOwner(data, nextPage, endCursor, currentMediaIds)
+                   await getInstaByOwner(data, nextPage, endCursor)
                } catch(e) {
                    console.log(e.status)
                }  
@@ -136,7 +136,7 @@ const getInstaByOwner = (data, nextPage, endCursor, currentMediaIds) => {
    }) 
 }
 
-const getInstaByLocation = (data, nextPage, endCursor, currentMediaIds) => {
+const getInstaByLocation = (data, nextPage, endCursor) => {
     let url
      nextPage ? url =`https://www.instagram.com/explore/locations/${data.locationId}/?__a=1&max_id=${endCursor}` : url = `https://www.instagram.com/explore/locations/${data.locationId}/?__a=1`
      request
@@ -146,10 +146,10 @@ const getInstaByLocation = (data, nextPage, endCursor, currentMediaIds) => {
         const endCursor = JSON.parse(result.text).graphql.location.edge_location_to_media.page_info.end_cursor
         const item = JSON.parse(result.text).graphql.location
         try {
-            await handleItem(data, item, currentMediaIds)
+            await handleItem(data, item)
             if (nextPage) {
                 try {
-                    await getInstaByLocation(data, nextPage, endCursor, currentMediaIds)
+                    await getInstaByLocation(data, nextPage, endCursor)
                 } catch(e) {
                     console.log(e.status)
                 }  
@@ -163,7 +163,7 @@ const getInstaByLocation = (data, nextPage, endCursor, currentMediaIds) => {
     }) 
 }
 
-const getInstaByHashtag= (data, nextPage, endCursor, currentMediaIds) => {
+const getInstaByHashtag= (data, nextPage, endCursor) => {
     let url
      nextPage ? url =`https://www.instagram.com/explore/tags/${data.hashTag}/?__a=1&max_id=${endCursor}` : url = `https://www.instagram.com/explore/tags/${data.hashTag}/?__a=1`
      request
@@ -173,10 +173,10 @@ const getInstaByHashtag= (data, nextPage, endCursor, currentMediaIds) => {
         const endCursor = JSON.parse(result.text).graphql.hashtag.edge_hashtag_to_media.page_info.end_cursor
         const item = JSON.parse(result.text).graphql.hashtag
         try {
-             await handleItem(data, item, currentMediaIds)
+             await handleItem(data, item)
             if (nextPage) {
                 try {
-                     await getInstaByHashtag(data, nextPage, endCursor, currentMediaIds)
+                     await getInstaByHashtag(data, nextPage, endCursor)
                 } catch(e) {
                     console.log(e.status)
                 }  
@@ -187,11 +187,11 @@ const getInstaByHashtag= (data, nextPage, endCursor, currentMediaIds) => {
     })
     .catch(err => {
          console.log('140 ' + err.status + ' ' + endCursor + ' ' + new Date())
-         if (err.status === 429) setTimeout(async () => await getInstaByHashtag(data, nextPage, endCursor, currentMediaIds), 5 * 60 * 1000)
+         if (err.status === 429) setTimeout(async () => await getInstaByHashtag(data, nextPage, endCursor), 5 * 60 * 1000)
     }) 
 }
 
-const getPages = async (locations, hashTags, keyWords, currentMediaIds, newScrapeSession) => {
+const getPages = async (locations, hashTags, keyWords,newScrapeSession) => {
     const nextPage = false
     const endCursor = false
     await owner.map(async o =>{
@@ -206,7 +206,7 @@ const getPages = async (locations, hashTags, keyWords, currentMediaIds, newScrap
                     scrapeSession: newScrapeSession,
                     owner: o.owner
                 }
-                return await getInstaByOwner(data, nextPage, endCursor, currentMediaIds)
+                return await getInstaByOwner(data, nextPage, endCursor)
             } catch(e) {
                 console.log(e.status)
             }
@@ -225,7 +225,7 @@ const getPages = async (locations, hashTags, keyWords, currentMediaIds, newScrap
                 shortCode: getShortCode(l.location),
                 scrapeSession: newScrapeSession
             }
-            return await getInstaByLocation(data, nextPage, endCursor, currentMediaIds)
+            return await getInstaByLocation(data, nextPage, endCursor)
         } catch(e) {
             console.log(e.status)
         }     
@@ -240,7 +240,7 @@ const getPages = async (locations, hashTags, keyWords, currentMediaIds, newScrap
           shortCode: getShortCode(h.location),
           scrapeSession: newScrapeSession
         }
-        !h.keyWord &&  await getInstaByHashtag(data, nextPage, endCursor, currentMediaIds)
+        !h.keyWord &&  await getInstaByHashtag(data, nextPage, endCursor)
       } catch(e) {
         console.log(e.status)
       }
@@ -254,7 +254,7 @@ const getPages = async (locations, hashTags, keyWords, currentMediaIds, newScrap
               shortCode: getShortCode(k),
               scrapeSession: newScrapeSession
             }
-            return await getInstaByHashtag(data, nextPage, endCursor, currentMediaIds)
+            return await getInstaByHashtag(data, nextPage, endCursor)
           } catch(e) {
             console.log(e.message)
           }
@@ -262,8 +262,8 @@ const getPages = async (locations, hashTags, keyWords, currentMediaIds, newScrap
   })
 }
 
-const runScraper = async (currentMediaIds, newScrapeSession) => {
-    return await getPages(locations, hashTags, keyWords, currentMediaIds, newScrapeSession)
+const runScraper = async (newScrapeSession) => {
+    return await getPages(locations, hashTags, keyWords, newScrapeSession)
 }
 
 @JsonController()
@@ -311,13 +311,11 @@ export default class InstagramController {
     async allInstagrams(
         @Body() input: object
     ) {
-        const data = await Instagram.query(`SELECT * FROM instagrams ORDER BY date DESC, id DESC `)
+ 
         const newScrapeSession = await new ScrapeSession()
         newScrapeSession.scrapedFrom = input['location']
         await newScrapeSession.save()
-        const currentDisplayUrls = data.map(d => d.media_id)
-        runScraper(currentDisplayUrls, newScrapeSession)
-        
+        runScraper(newScrapeSession)
         const result = await ScrapeSession.findOne(newScrapeSession.id, { relations: ['items'] })
         return {latestSession: result}
     }
