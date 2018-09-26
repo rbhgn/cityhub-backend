@@ -55,7 +55,8 @@ const getInstaUser =  async (item) => {
                             if (!savedItem) console.log("error saving")
                     }  
                     if (duplicate !== undefined) {
-                        item.status === duplicate.status
+                        newItem.status === duplicate.status
+                        newItem.scrapeSession = duplicate.scrapeSession
                         const updateItem = Instagram.merge(duplicate, newItem).save()
                         updateItem ? console.log("Updated Item") : console.log("error updating")
                     }
@@ -68,6 +69,7 @@ const getInstaUser =  async (item) => {
             }  
             if (duplicate !== undefined) {
                 item.status === duplicate.status
+                item.scrapeSession = duplicate.scrapeSession
                 const updateItem = Instagram.merge(duplicate, item).save()
                 updateItem ? console.log("Updated Item") : console.log("error updating")
             }
